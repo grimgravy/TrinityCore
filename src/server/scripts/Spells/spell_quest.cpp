@@ -1902,6 +1902,23 @@ class spell_quest_uther_grom_tribute : public SpellScript
     }
 };
 
+class spell_q10720_the_smallest_creature : public SpellScript
+{
+    PrepareSpellScript(spell_q10720_the_smallest_creature);
+
+    void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+    {
+        if (GetCaster() && GetHitUnit())
+            if (Player* player = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself())
+                player->KilledMonsterCredit(GetHitUnit()->GetEntry());
+    }
+
+    void Register() override
+    {
+        OnEffectHitTarget += SpellEffectFn(spell_q10720_the_smallest_creature::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -1962,4 +1979,5 @@ void AddSC_quest_spell_scripts()
     RegisterSpellScript(spell_quest_taming_the_beast);
     RegisterSpellScript(spell_quest_portal_with_condition);
     RegisterSpellScript(spell_quest_uther_grom_tribute);
+    RegisterSpellScript(spell_q10720_the_smallest_creature);
 }
