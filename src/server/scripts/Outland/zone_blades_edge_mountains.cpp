@@ -1016,7 +1016,8 @@ class spell_oscillating_field : public SpellScriptLoader
 
 enum Marmot
 {
-    SPELL_COAX_MARMOT = 38544
+    SPELL_CHARM_REXXARS_RODENT     = 38586,
+    SPELL_COAX_MARMOT              = 38544
 };
 
 struct npc_marmot : public PossessedAI
@@ -1025,39 +1026,105 @@ struct npc_marmot : public PossessedAI
 
     void OnCharmed(bool apply) override
     {
-        if (apply)
-            me->SetLevel(me->GetCharmerOrOwner()->GetLevel());
-        else
-            me->GetCharmerOrOwner()->RemoveAurasDueToSpell(SPELL_COAX_MARMOT);
+        if (!apply)
+        {
+            // Crashe :(
+            //me->GetCharmerOrOwner()->RemoveAurasDueToSpell(SPELL_COAX_MARMOT);
+        }
     }
+
+private:
+    ObjectGuid _charmerGUID;
 };
 
-class spell_coax_marmot : public AuraScript
+class spell_coax_marmot : public SpellScriptLoader
 {
-    PrepareAuraScript(spell_coax_marmot);
+public:
+    static char constexpr const ScriptName[] = "spell_coax_marmot";
 
-    void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    spell_coax_marmot() : SpellScriptLoader(ScriptName) { }
+
+    class spell_coax_marmot_SpellScript : public SpellScript
     {
-        // if you take DC during the charm it will be removed
-        Unit* caster = GetCaster();
-        if (!caster || caster->GetCharmedGUID())
-            return;
+        PrepareSpellScript(spell_coax_marmot_SpellScript);
 
-        caster->RemoveAurasDueToSpell(SPELL_COAX_MARMOT);
+        void HandleSummon(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+            uint32 entry = uint32(GetEffectInfo().MiscValue);
+            Position pos = GetCaster()->GetPosition();
+
+            if (Creature* marmot = GetCaster()->SummonCreature(entry, pos))
+            {
+                GetCaster()->CastSpell(marmot, SPELL_CHARM_REXXARS_RODENT, true);
+                _marmotGuid = marmot->GetGUID();
+            }
+        }
+
+        void SetMarmot(SpellEffIndex /*effIndex*/)
+        {
+            if (Aura* aura = GetHitAura())
+                if (spell_coax_marmot_AuraScript* script = aura->GetScript<spell_coax_marmot_AuraScript>(ScriptName))
+                    script->SetMarmotGuid(_marmotGuid);
+        }
+
+        void Register() override
+        {
+            OnEffectHit += SpellEffectFn(spell_coax_marmot_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+            OnEffectHitTarget += SpellEffectFn(spell_coax_marmot_SpellScript::SetMarmot, EFFECT_1, SPELL_EFFECT_APPLY_AURA);
+        }
+
+    private:
+        ObjectGuid _marmotGuid;
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_coax_marmot_SpellScript();
     }
 
-    void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    class spell_coax_marmot_AuraScript : public AuraScript
     {
-        if (Unit* charm = GetUnitOwner()->GetCharmed())
-            if (GetSpellInfo()->GetEffect(EFFECT_0).MiscValue >= 0 && charm->GetEntry() == uint32(GetSpellInfo()->GetEffect(EFFECT_0).MiscValue))
-                if (Creature* marmot = charm->ToCreature())
-                    marmot->DespawnOrUnsummon();
-    }
+        PrepareAuraScript(spell_coax_marmot_AuraScript);
+    public:
+        void SetMarmotGuid(ObjectGuid guid)
+        {
+            marmotGuid = guid;
+        }
+        void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            // if you take DC during the charm it will be removed
+            Unit* caster = GetCaster();
+            if (!caster || caster->GetCharmedGUID())
+                return;
 
-    void Register() override
+            caster->RemoveAurasDueToSpell(SPELL_COAX_MARMOT);
+        }
+
+        void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            if (Unit* charm = GetUnitOwner()->GetCharmed())
+                if (GetSpellInfo()->GetEffect(EFFECT_0).MiscValue >= 0 && charm->GetEntry() == uint32(GetSpellInfo()->GetEffect(EFFECT_0).MiscValue))
+                    if (Creature* marmot = charm->ToCreature())
+                        marmot->DespawnOrUnsummon();
+
+            // Dismiss Marmot
+            if (Creature * marmot = ObjectAccessor::GetCreature(*GetCaster(), marmotGuid))
+                marmot->DespawnOrUnsummon();
+        }
+
+        void Register() override
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_coax_marmot_AuraScript::HandleEffectApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_coax_marmot_AuraScript::HandleEffectRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+
+        ObjectGuid marmotGuid;
+    };
+
+    AuraScript* GetAuraScript() const override
     {
-        OnEffectApply += AuraEffectApplyFn(spell_coax_marmot::HandleEffectApply, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-        OnEffectRemove += AuraEffectRemoveFn(spell_coax_marmot::HandleEffectRemove, EFFECT_1, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        return new spell_coax_marmot_AuraScript();
     }
 };
 
@@ -1071,5 +1138,5 @@ void AddSC_blades_edge_mountains()
     new npc_oscillating_frequency_scanner_master_bunny();
     new spell_oscillating_field();
     RegisterCreatureAI(npc_marmot);
-    RegisterSpellScript(spell_coax_marmot);
+    new spell_coax_marmot();
 }
