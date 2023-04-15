@@ -1020,23 +1020,6 @@ enum Marmot
     SPELL_COAX_MARMOT              = 38544
 };
 
-struct npc_marmot : public PossessedAI
-{
-    npc_marmot(Creature* creature) : PossessedAI(creature) { }
-
-    void OnCharmed(bool apply) override
-    {
-        if (!apply)
-        {
-            // Crashe :(
-            //me->GetCharmerOrOwner()->RemoveAurasDueToSpell(SPELL_COAX_MARMOT);
-        }
-    }
-
-private:
-    ObjectGuid _charmerGUID;
-};
-
 class spell_coax_marmot : public SpellScriptLoader
 {
 public:
@@ -1098,7 +1081,7 @@ public:
             if (!caster || caster->GetCharmedGUID())
                 return;
 
-            caster->RemoveAurasDueToSpell(SPELL_COAX_MARMOT);
+            caster->RemoveAurasByType(SPELL_AURA_DUMMY);
         }
 
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -1128,6 +1111,21 @@ public:
     }
 };
 
+class spell_charm_rexxars_rodent : public AuraScript
+{
+    PrepareAuraScript(spell_charm_rexxars_rodent);
+
+    void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetCaster()->RemoveAurasDueToSpell(SPELL_COAX_MARMOT);
+    }
+
+    void Register() override
+    {
+        AfterEffectRemove += AuraEffectRemoveFn(spell_charm_rexxars_rodent::OnRemove, EFFECT_0, SPELL_AURA_MOD_POSSESS, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_blades_edge_mountains()
 {
     new npc_nether_drake();
@@ -1137,6 +1135,6 @@ void AddSC_blades_edge_mountains()
     new go_apexis_relic();
     new npc_oscillating_frequency_scanner_master_bunny();
     new spell_oscillating_field();
-    RegisterCreatureAI(npc_marmot);
     new spell_coax_marmot();
+    RegisterSpellScript(spell_charm_rexxars_rodent);
 }

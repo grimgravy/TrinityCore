@@ -4951,7 +4951,6 @@ void SpellMgr::LoadSpellInfoCorrections()
     // The Smallest Creatures
     ApplySpellFix({ 38544 }, [](SpellInfo* spellInfo)
     {
-        //spellInfo->_GetEffect(EFFECT_0).MiscValueB = 65;
         spellInfo->_GetEffect(EFFECT_1).ApplyAuraName = SPELL_AURA_DUMMY;
     });
 
