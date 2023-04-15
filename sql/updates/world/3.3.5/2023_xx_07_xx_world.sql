@@ -1,5 +1,3 @@
-UPDATE `creature_template` SET `ScriptName`='npc_marmot' WHERE `entry`=22189;
-
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_q10720_the_smallest_creature';
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_coax_marmot';
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_charm_rexxars_rodent';
