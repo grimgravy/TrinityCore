@@ -41,7 +41,6 @@ EndContentData */
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "TemporarySummon.h"
-#include "PassiveAI.h"
 
 /*######
 ## npc_nether_drake
@@ -1074,6 +1073,7 @@ public:
         {
             marmotGuid = guid;
         }
+
         void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             // if you take DC during the charm it will be removed
