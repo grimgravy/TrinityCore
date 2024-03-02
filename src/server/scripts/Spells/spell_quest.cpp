@@ -1917,12 +1917,21 @@ class spell_q10720_the_smallest_creature : public SpellScript
 {
     PrepareSpellScript(spell_q10720_the_smallest_creature);
 
+    bool Validate(SpellInfo const* /*spellEntry*/) override
+    {
+        return ValidateSpellInfo(
+        {
+            SPELL_GREEN_EYE_GROG_CREDIT,
+            SPELL_RIPE_MOONSHINE_CREDIT,
+            SPELL_FERMENTED_SEED_BEER_CREDIT
+        });
+    }
+
     void HandleScriptEffect(SpellEffIndex /*effIndex*/)
     {
         if (Player* player = GetCaster()->GetCharmerOrOwnerPlayerOrPlayerItself())
         {
             uint32 spellId = 0;
-
             switch (GetHitCreature()->GetEntry())
             {
                 case NPC_GREEN_SPOT_GROG_KEG_CREDIT:

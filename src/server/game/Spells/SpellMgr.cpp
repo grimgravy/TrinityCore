@@ -4948,7 +4948,7 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(5); // 40yd
     });
 
-    // The Smallest Creatures
+    // Coax Marmot
     ApplySpellFix({ 38544 }, [](SpellInfo* spellInfo)
     {
         spellInfo->_GetEffect(EFFECT_1).ApplyAuraName = SPELL_AURA_DUMMY;
