@@ -1126,6 +1126,21 @@ class spell_charm_rexxars_rodent : public AuraScript
     }
 };
 
+class spell_stealth_marmot : public AuraScript
+{
+    PrepareAuraScript(spell_stealth_marmot);
+
+    void ApplyStealth(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+    {
+        GetTarget()->m_stealth.AddValue(STEALTH_GENERAL, 299);
+    }
+
+    void Register() override
+    {
+        AfterEffectApply += AuraEffectApplyFn(spell_stealth_marmot::ApplyStealth, EFFECT_0, SPELL_AURA_MOD_STEALTH, AURA_EFFECT_HANDLE_REAL);
+    }
+};
+
 void AddSC_blades_edge_mountains()
 {
     new npc_nether_drake();
@@ -1137,4 +1152,5 @@ void AddSC_blades_edge_mountains()
     new spell_oscillating_field();
     new spell_coax_marmot();
     RegisterSpellScript(spell_charm_rexxars_rodent);
+    RegisterSpellScript(spell_stealth_marmot);
 }

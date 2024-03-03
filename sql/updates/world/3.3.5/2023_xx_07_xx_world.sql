@@ -1,10 +1,12 @@
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_q10720_the_smallest_creature';
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_coax_marmot';
 DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_charm_rexxars_rodent';
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_stealth_marmot';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (38629, 'spell_q10720_the_smallest_creature'),
 (38544, 'spell_coax_marmot'),
-(38586, 'spell_charm_rexxars_rodent');
+(38586, 'spell_charm_rexxars_rodent'),
+(42347, 'spell_stealth_marmot');
 
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=17 AND `SourceGroup`=0 AND `SourceEntry`=38629;
 DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceGroup`=1 AND `SourceEntry`=38629;
