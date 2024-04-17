@@ -1040,6 +1040,9 @@ public:
             {
                 GetCaster()->CastSpell(marmot, SPELL_CHARM_REXXARS_RODENT, true);
                 _marmotGuid = marmot->GetGUID();
+
+                // Invisible on player
+                GetCaster()->SetVisible(false);
             }
         }
 
@@ -1094,6 +1097,9 @@ public:
             // Dismiss Marmot
             if (Creature * marmot = ObjectAccessor::GetCreature(*GetCaster(), marmotGuid))
                 marmot->DespawnOrUnsummon();
+
+            // Visible on player
+            GetCaster()->SetVisible(true);
         }
 
         void Register() override
